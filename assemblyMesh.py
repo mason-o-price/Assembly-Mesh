@@ -112,10 +112,9 @@ class Triangle:
                     triangleToTest.updateBoundStatus()
 
                     # Merge the vertices of the adjacent triangles
-                    newTriangle = mergeEdges(newTriangle, potentialSide, triangleToTest, friendlyEdge)
+                    newTriangle, triangleToTest = mergeEdges(newTriangle, potentialSide, triangleToTest, friendlyEdge)
 
                     # Update the mesh
-                    # mesh[self.indx] = self
                     mesh[triangleToTest.indx] = triangleToTest
 
         # Update the mesh
@@ -145,10 +144,13 @@ def mergeEdges(triangleA: Triangle, sideA: int, triangleB: Triangle, sideB: int)
     BVtx1 = (sideB - 1)%3                           # 0 -> 2, 1 -> 0, 2 -> 1 
     BVtx2 = sideB                                   # 0 -> 0, 1 -> 1, 2 -> 2
 
-    triangleA.coordinates[AVtx1, :] = triangleB.coordinates[BVtx1, :]
-    triangleA.coordinates[AVtx2, :] = triangleB.coordinates[BVtx2, :]
+    # Replace the coordinates of the vertices to be the average 
+    triangleA.coordinates[AVtx1, :] = (triangleA.coordinates[AVtx1, :] + triangleB.coordinates[BVtx1, :])/2
+    triangleB.coordinates[BVtx1, :] = (triangleA.coordinates[AVtx1, :] + triangleB.coordinates[BVtx1, :])/2
+    triangleA.coordinates[AVtx2, :] = (triangleA.coordinates[AVtx2, :] + triangleB.coordinates[BVtx2, :])/2
+    triangleB.coordinates[BVtx2, :] = (triangleA.coordinates[AVtx2, :] + triangleB.coordinates[BVtx2, :])/2
 
-    return triangleA
+    return triangleA, triangleB
 
 
 def findComplementaryTriangle(species: int, side: int, interactionMatrix: list) -> tuple:
@@ -174,7 +176,6 @@ def showMesh(mesh: list[Triangle], ax, trianglesToShow: int) -> None:
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     ax.set_zlim(zlim)
-    # ax.auto_scale_xyz
     ax.set_aspect('equal')
 
     # Retrieve the coordinates and colors of the triangles
@@ -190,7 +191,7 @@ def showMesh(mesh: list[Triangle], ax, trianglesToShow: int) -> None:
     ax.set_zticks([])                               # Hide z-axis ticks
     ax.set_axis_off()                               # Hide axis-lines
     
-    plt.draw()                                      # Show the plot
+    plt.show()                                      # Show the plot
 
 def generateMesh(baseMesh: list, numTriangles: int, interactionMatrix: list, bindingAngles: list, colorMatrix: list, maxTriangles: int) -> list:
     # Check that the size of the interaction matrix and binding angles matrix are compatible
@@ -210,7 +211,7 @@ def generateMesh(baseMesh: list, numTriangles: int, interactionMatrix: list, bin
                     return baseMesh
                 tri = baseMesh[triangleIdx]
                 if not tri.isFullyBound: # Check that we're not adding to a bound triangle
-                    baseMesh, numTriangles = tri.addNeighbor(side, baseMesh, numTriangles, interactionMatrix, bindingAngles, colorMatrix, vtxProximityThresh=0.1)      # Add new triangles, and update existing ones.
+                    baseMesh, numTriangles = tri.addNeighbor(side, baseMesh, numTriangles, interactionMatrix, bindingAngles, colorMatrix, vtxProximityThresh=0.2)      # Add new triangles, and update existing ones.
                 
     # If we've made it this far without returning something, the while loop timed out. 
     print(f"Timed out")
@@ -322,7 +323,7 @@ class App:
         self.ax = self.fig.add_subplot(1, 2, 2, projection = '3d')
         self.ax.set_xlim(-3, 3)
         self.ax.set_ylim(-3, 3)
-        self.ax.set_zlim(-1, 5)     
+        self.ax.set_zlim(-1, 5)
 
         # Register the update function with the slider
         self.numSlider.on_changed(self.handleUpdateSlider)
