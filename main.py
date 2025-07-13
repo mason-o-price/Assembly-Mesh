@@ -1,4 +1,3 @@
-# import matplotlib.pyplot as plt
 import assemblyMesh as am
 
 if __name__ == "__main__":
@@ -16,12 +15,8 @@ if __name__ == "__main__":
         myMesh = am.initializeMesh(interactionMatrixFile, bindingAnglesFile, maxTriangles) 
         myApp = am.App(myMesh, startingTriangles, maxTriangles, interactionMatrixFile, bindingAnglesFile) 
         am.showMesh(myMesh, myApp.ax, startingTriangles)
-    except Exception as ex: 
-        print(f"Exception: {ex}")
-        baseTriangle = am.Triangle(index=0,
-                            species=0,
-                            interactionMatrix=[],
-                            color=am.createColorMap(1))
+    except: 
+        baseTriangle = am.Triangle(index=0,  species=0, interactionMatrix=[], color=am.createColorMap(1))
         myMesh = [baseTriangle]
-        myApp = am.App(myMesh, 1, maxTriangles, '', '')
+        myApp = am.App(myMesh, startingTriangles=1, maxTriangles=maxTriangles, interactionMatrixFile='', bindingAnglesFile='')
         am.showMesh(myMesh, myApp.ax, startingTriangles)
