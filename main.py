@@ -1,14 +1,14 @@
 import assemblyMesh as am
 
-if __name__ == "__main__":
+def main():
     maxTriangles = 300
     startingTriangles = 3           
     
     # Specify the directory and file name for the interaction matrix
-    interactionMatrixFile = r'C:\Users\mason\OneDrive\Desktop\code\python\research\interactionMatrices\T13_interactions.csv'
+    interactionMatrixFile = r''
 
     # Specify the directory and file name for the binding angles matrix
-    bindingAnglesFile = r'C:\Users\mason\OneDrive\Desktop\code\python\research\bindingAngles\T13_angles.csv'
+    bindingAnglesFile = r''
     
     # In case the input file paths above don't work, create a placeholer triangle and let the user upload new input files
     try:
@@ -20,3 +20,6 @@ if __name__ == "__main__":
         myMesh = [baseTriangle]
         myApp = am.App(myMesh, startingTriangles=1, maxTriangles=maxTriangles, interactionMatrixFile='', bindingAnglesFile='')
         am.showMesh(myMesh, myApp.ax, startingTriangles)
+
+if __name__ == "__main__":
+    main()
